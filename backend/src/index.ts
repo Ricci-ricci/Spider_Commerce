@@ -57,6 +57,9 @@ app.use("/api/cart", cartRoute);
 app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Welcome to E-Commerce API" });
 });
+app.get("/api/health", (_req: Request, res: Response) => {
+    res.json({ ok: true, uptime: process.uptime() });
+});
 app.use(errorHandler);
 const startServer = async () => {
     try {
