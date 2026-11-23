@@ -11,7 +11,7 @@ const BackgroundImage = ({ children }: BackgroundImageProps) => {
             <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative w-[150vmax] h-[150vmax] rotate-90">
                     <Image
-                        src="/images/background.jpg"
+                        src="https://res.cloudinary.com/rz3s0vcd/image/upload/v1795455646/static/background.jpg"
                         alt="Background"
                         fill
                         className="object-cover"

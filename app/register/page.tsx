@@ -180,7 +180,7 @@ export default function RegisterPage() {
                     }}
                 >
                     <Image
-                        src="/uploads/images/9-404-638-236-239-592.jpeg"
+                        src="https://res.cloudinary.com/rz3s0vcd/image/upload/v1795454926/9-404-638-236-239-592.jpg"
                         alt=""
                         fill
                         priority

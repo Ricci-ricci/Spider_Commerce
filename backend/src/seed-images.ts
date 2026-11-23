@@ -1,5 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
+if (process.env.CLOUDINARY_URL) cloudinary.config(true);
 import prisma from "./utils/prisma.js";
 
 const IMAGES_DIR = path.join(process.cwd(), "uploads", "images");
@@ -153,6 +158,14 @@ async function main() {
             // Rename on disk
             fs.renameSync(originalPath, newPath);
 
+            // Upload to Cloudinary
+            const publicId = path.parse(newFilename).name;
+            const uploaded = await cloudinary.uploader.upload(newPath, {
+                public_id: publicId,
+                overwrite: true,
+                resource_type: "image",
+            });
+
             const features = getRandomFeatures(
                 Math.floor(Math.random() * 3) + 2,
             ); // 2 to 4 features
@@ -181,8 +194,8 @@ async function main() {
                 continue;
             }
 
-            // The path accessible via static file server
-            const imagePath = `/uploads/images/${newFilename}`;
+            // Cloudinary CDN URL (replaces local /uploads path)
+            const imagePath = uploaded.secure_url;
 
             await prisma.product.create({
                 data: {

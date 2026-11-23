@@ -28,9 +28,10 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
-        "@prisma/client": "6.19",
         "@faker-js/faker": "^9.0.0",
+        "@prisma/client": "6.19",
         "bcryptjs": "^3.0.3",
+        "cloudinary": "^2.11.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^17.2.3",

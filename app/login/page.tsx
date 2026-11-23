@@ -80,7 +80,7 @@ export default function LoginPage() {
                     }}
                 >
                     <Image
-                        src="/uploads/images/19-893-658-54-692-913.jpeg"
+                        src="https://res.cloudinary.com/rz3s0vcd/image/upload/v1795454925/19-893-658-54-692-913.jpg"
                         alt=""
                         fill
                         priority

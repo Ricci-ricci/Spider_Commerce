@@ -10,7 +10,7 @@ const Background = ({ children }: BackgroundImageProps) => {
         <section className="relative w-full h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
             <div className="absolute inset-0">
                 <Image
-                    src="/images/_.jpeg"
+                    src="https://res.cloudinary.com/rz3s0vcd/image/upload/v1795455650/static/_.jpg"
                     alt="Background"
                     fill
                     className="object-cover object-center"

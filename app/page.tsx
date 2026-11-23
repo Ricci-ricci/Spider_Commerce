@@ -11,7 +11,7 @@ import { Badge } from "@astryxdesign/core/Badge";
 import { Divider } from "@astryxdesign/core/Divider";
 import useRealProducts from "./data/fetchProduct";
 
-const HERO_IMAGE = "/uploads/images/19-893-658-54-692-913.jpeg";
+const HERO_IMAGE = "https://res.cloudinary.com/rz3s0vcd/image/upload/v1795454925/19-893-658-54-692-913.jpg";
 
 export default function Home() {
     const { data: products, loading } = useRealProducts();
