@@ -8,11 +8,6 @@ import FooterPart1 from "./components/mainPart/footer";
 export const metadata: Metadata = {
     title: "SpiderSense",
     description: "Your favorite shop",
-    icons: {
-        icon: "/images/forlogo.jpg",
-        shortcut: "/images/forlogo.jpg",
-        apple: "/images/forlogo.jpg",
-    },
 };
 
 export default function RootLayout({
