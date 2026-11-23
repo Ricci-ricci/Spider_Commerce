@@ -1,0 +1,132 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
+} from "../../../components/ui/sidebar";
+import SidebarShop from "../sidebarShop";
+import ProductGrid from "../ProductGrid";
+import useRealProducts from "../../data/fetchProduct";
+
+interface Product {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+    rating: number;
+    stock: number;
+    published: boolean;
+    image: string;
+    features: string[];
+    categoryName: string;
+    categoryId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+const Shop2 = () => {
+    const searchParams = useSearchParams();
+    //where we stock everythings
+    const { data, loading, error } = useRealProducts();
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); //here is the product or the filtered product
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]); //here is the category if selected
+    const [minPrice, setMinPrice] = useState<number>(0); //here is the min price that is 0
+    const [maxPrice, setMaxPrice] = useState<number>(1000); //here is the max price that is 1000 if selected
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+
+    //this is a function to apply the filters
+    const applyFilters = useCallback(
+        (categories: string[], min: number, max: number) => {
+            //after importing the product we filter it and stock it inside filterd variable
+            // filtered has to check if
+            const filtered = data.filter((product: Product) => {
+                //if there s no category selectioned and returned true and return everything categories.lenght===0
+                // or check if it s included inside the categories by categories.includes(product.category.name);
+                const inCategory =
+                    categories.length === 0 ||
+                    categories.includes(product.categoryName);
+                //check if it s between the range of price max and min
+                const inPriceRange =
+                    product.price >= min && product.price <= max;
+                //and return both
+                return inCategory && inPriceRange;
+            });
+            setFilteredProducts(filtered);
+            setCurrentPage(1); // Reset to first page when filters change
+        },
+        [data],
+    );
+
+    const clearFilters = () => {
+        setSelectedCategories([]);
+        setMinPrice(0);
+        setMaxPrice(1000);
+        setFilteredProducts(data);
+        setCurrentPage(1);
+    };
+    useEffect(() => {
+        setFilteredProducts(data);
+        setCurrentPage(1);
+    }, [data]);
+
+    useEffect(() => {
+        const category = searchParams.get("category");
+        if (category) {
+            setSelectedCategories([category]);
+            applyFilters([category], minPrice, maxPrice);
+        }
+        setCurrentPage(1);
+    }, [searchParams, applyFilters, minPrice, maxPrice]);
+
+    if (error) return <div>Error: {error}</div>;
+
+    return (
+        <SidebarProvider className="w-full h-full min-h-[inherit]">
+            <SidebarShop
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                onApplyFilters={applyFilters}
+                onClearFilters={clearFilters}
+            />
+            <SidebarInset className="bg-transparent overflow-hidden">
+                <header className="flex h-16 shrink-0 items-center gap-2 px-6 border-b border-gray-100 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                    <SidebarTrigger className="-ml-1" />
+                    <div className="flex-1 flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-gray-400 md:hidden">
+                                &larr; Filter by Category
+                            </span>
+                            <span className="text-sm font-medium text-gray-500">
+                                Showing {(currentPage - 1) * itemsPerPage + 1}-
+                                {Math.min(
+                                    currentPage * itemsPerPage,
+                                    filteredProducts.length,
+                                )}{" "}
+                                of {filteredProducts.length} results
+                            </span>
+                        </div>
+                    </div>
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-6">
+                    <ProductGrid
+                        filteredProducts={filteredProducts}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        itemsPerPage={itemsPerPage}
+                        loading={loading}
+                    />
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+    );
+};
+
+export default Shop2;
