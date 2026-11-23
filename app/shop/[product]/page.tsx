@@ -24,18 +24,28 @@ export default async function Page({
     let all: RealProduct[] = [];
 
     try {
-        console.log(`[shop] Fetching ${SERVER_API}/api/products for id=${productId}`);
-        const response = await fetch(`${SERVER_API}/api/products`, {
+        const oneUrl = `${SERVER_API}/api/products/${productId}`;
+        console.log(`[shop] Fetching ${oneUrl}`);
+        const oneRes = await fetch(oneUrl, {
             cache: "no-store",
             signal: AbortSignal.timeout(60000),
         });
-        console.log(`[shop] Status: ${response.status}`);
-        if (response.ok) {
-            const data = await response.json();
-            all = data.data as RealProduct[];
-            console.log(`[shop] Got ${all.length} products`);
-            product = all.find((p) => p.id === productId) ?? null;
-            console.log(`[shop] Match: ${product ? product.title : "NONE"}`);
+        console.log(`[shop] Status: ${oneRes.status}`);
+        if (oneRes.ok) {
+            const body = await oneRes.json();
+            product = (body.data ?? null) as RealProduct | null;
+            console.log(`[shop] Product: ${product?.title ?? "NULL"}`);
+        }
+
+        if (product) {
+            const allRes = await fetch(`${SERVER_API}/api/products`, {
+                cache: "no-store",
+                signal: AbortSignal.timeout(60000),
+            });
+            if (allRes.ok) {
+                const data = await allRes.json();
+                all = (data.data ?? []) as RealProduct[];
+            }
         }
     } catch (e) {
         console.error(`[shop] Fetch failed:`, e);
