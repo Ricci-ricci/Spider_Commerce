@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+"use client";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { VStack } from "@astryxdesign/core/VStack";
@@ -9,55 +10,69 @@ import { Badge } from "@astryxdesign/core/Badge";
 import AddToCartButton from "@/app/components/productPart/AddToCartButton";
 import { RealProduct } from "@/app/data/fetchProduct";
 
-// Server-side fetches need an absolute URL. On the server we reach the backend
-// over the compose network; on the browser we rely on the Next.js rewrite proxy.
-const SERVER_API =
-    process.env.BACKEND_INTERNAL_URL || "http://localhost:4000";
-
-export default async function Page({
+export default function Page({
     params,
 }: {
     params: Promise<{ product: string }>;
 }) {
-    const { product: productId } = await params;
-    let product: RealProduct | null = null;
-    let all: RealProduct[] = [];
+    const { product: productId } = use(params);
+    const [product, setProduct] = useState<RealProduct | null>(null);
+    const [all, setAll] = useState<RealProduct[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    try {
-        const oneUrl = `${SERVER_API}/api/products/${productId}`;
-        console.log(`[shop] Fetching ${oneUrl}`);
-        const oneRes = await fetch(oneUrl, {
-            cache: "no-store",
-            signal: AbortSignal.timeout(60000),
-        });
-        console.log(`[shop] Status: ${oneRes.status}`);
-        if (oneRes.ok) {
-            const body = await oneRes.json();
-            product = (body.data ?? null) as RealProduct | null;
-            console.log(`[shop] Product: ${product?.title ?? "NULL"}`);
-        }
-
-        if (product) {
-            const allRes = await fetch(`${SERVER_API}/api/products`, {
-                cache: "no-store",
-                signal: AbortSignal.timeout(60000),
-            });
-            if (allRes.ok) {
-                const data = await allRes.json();
-                all = (data.data ?? []) as RealProduct[];
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const [oneRes, allRes] = await Promise.all([
+                    fetch(`/api/products/${productId}`),
+                    fetch(`/api/products`),
+                ]);
+                if (cancelled) return;
+                if (oneRes.ok) {
+                    const body = await oneRes.json();
+                    setProduct(body.data ?? null);
+                }
+                if (allRes.ok) {
+                    const body = await allRes.json();
+                    setAll(body.data ?? []);
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
             }
-        }
-    } catch (e) {
-        console.error(`[shop] Fetch failed:`, e);
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [productId]);
+
+    if (loading) {
+        return (
+            <main style={{ padding: "4rem", textAlign: "center" }}>
+                <Text type="body">Loading…</Text>
+            </main>
+        );
     }
 
-    if (!product) return notFound();
+    if (!product) {
+        return (
+            <main style={{ padding: "4rem", textAlign: "center" }}>
+                <Heading level={1} type="display-3">
+                    Product not found
+                </Heading>
+                <Link href="/shop">
+                    <Text type="body" color="accent">
+                        Back to shop
+                    </Text>
+                </Link>
+            </main>
+        );
+    }
 
     const related = all
         .filter(
             (p) =>
-                p.id !== product!.id &&
-                p.categoryName === product!.categoryName,
+                p.id !== product.id && p.categoryName === product.categoryName,
         )
         .slice(0, 4);
 
