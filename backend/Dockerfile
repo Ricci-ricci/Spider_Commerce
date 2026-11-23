@@ -1,10 +1,10 @@
 FROM node:22-slim AS builder
 WORKDIR /app
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY package.json package-lock.json ./
-COPY prisma ./prisma
+COPY backend/package.json backend/package-lock.json ./
+COPY backend/prisma ./prisma
 RUN npm ci --include=dev
-COPY . .
+COPY backend/ .
 RUN npx prisma generate
 RUN npm run build
 
