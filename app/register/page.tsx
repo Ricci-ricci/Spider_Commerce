@@ -45,6 +45,7 @@ export default function RegisterPage() {
             const response = await fetch(API_ENDPOINTS.register, {
                 method: "POST",
                 headers: { "content-type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ name, email, password }),
             });
             if (!response.ok) {
